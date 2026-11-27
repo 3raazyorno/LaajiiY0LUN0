@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 <html>
@@ -15,30 +14,11 @@
 
 <style>
 
-.n_LY
-{
-    background : #00ff00;
-    padding : 0.390625%;
-    text-decoration : none;
-    color : #000000;
-    font-size : 200%;
-    font-family : monospace;
-}
-
-.n_LaY0
-{
-    background : #ffffff;
-    padding : 0.390625%;
-    text-decoration : none;
-    color : #0000ff;
-    font-size : 200%;
-    font-family : monospace;
-}
-
 body
 {
     background : #000000;
     text-align : center;
+    margin : 0;
 }
 
 #n_noise
@@ -48,53 +28,333 @@ body
     left : 0;
     width : 100%;
     height : 100%;
-    z-index : -2;
+    z-index : -1;
+}
+
+button
+{
+    position : relative;
+    margin : 16px;
+    padding : 16px;
+    font-family : monospace;
+    font-size : 100%;
+    cursor : pointer;
 }
 
 </style>
 
 <canvas id = "n_noise"> </canvas>
 
+<button onclick = "n_generate ()">
+    new___worLd
+</button>
+
+<button onclick = "n_save ()">
+    downLoad___png
+</button>
+
 <script>
 
 const canvas = document.getElementById ("n_noise");
 const ctx = canvas.getContext ("2d");
 
-function n_generate ()
+const n_w = 512;
+const n_h = 512;
+
+canvas.width = n_w;
+canvas.height = n_h;
+
+function n_rand (min, max)
 {
-    const w = 256;
-    const h = 256;
+    return Math.random () * (max - min) + min;
+}
 
-    canvas.width = w;
-    canvas.height = h;
+function n_background ()
+{
+    const n_grad = ctx.createRadialGradient
+    (
+        256, 64, 128,
+        256, 256, 512
+    );
 
-    const img = ctx.createImageData (w, h);
+    n_grad.addColorStop (0, "#ffff00");
+    n_grad.addColorStop (0.5, "#00ff00");
+    n_grad.addColorStop (1, "#ffffff");
 
-    const n_seed = Math.random () * 512;
+    ctx.fillStyle = n_grad;
+    ctx.fillRect (0, 0, n_w, n_h);
 
-    for (let y = 0; y < h; y++)
+    for (let i = 0; i < 128; i++)
     {
-        for (let x = 0; x < w; x++)
-        {
-            const i = (y * w + x) * 4;
+        ctx.fillStyle = `rgba (128,256,512,$ {n_rand (0.25, 0.75) } )`;
 
-            const n_wave =
-                Math.sin (x * 0.125 + n_seed) *
-                Math.cos (y * 0.125 + n_seed);
+        ctx.beginPath ();
 
-            const n_noise = Math.random () * 128;
+        ctx.arc
+        (
+            n_rand (0, n_w),
+            n_rand (0, n_h),
+            n_rand (0.5, 2),
+            0,
+            Math.PI * 4
+        );
 
-            const n_value =
-                256 + n_wave * 64 + n_noise - 64;
+        ctx.fill ();
+    }
+}
 
-            img.data [i] = n_value * 2;
-            img.data [i + 1] = n_value * 0.5;
-            img.data [i + 2] = n_value * 2;
-            img.data [i + 3] = 128;
-        }
+function n_tentacle (x, y, angle, length)
+{
+    ctx.save ();
+
+    ctx.translate (x, y);
+    ctx.rotate (angle);
+
+    ctx.beginPath ();
+    ctx.moveTo (0, 0);
+
+    ctx.bezierCurveTo
+    (
+        length * 0.25, -n_rand (16, 128),
+        length * 0.75, n_rand (-128, 64),
+        length, n_rand (-64, 8)
+    );
+
+    ctx.strokeStyle = "#000000";
+    ctx.lineWidth = n_rand (8, 32);
+    ctx.lineCap = "round";
+    ctx.stroke ();
+
+    for (let i = 0; i < 8; i++)
+    {
+        const n_x = length * n_rand (0.25, 1);
+        const n_y = n_rand (-16, 32);
+
+        ctx.beginPath ();
+        ctx.moveTo (n_x, n_y);
+
+        ctx.quadraticCurveTo
+        (
+            n_x + 16, n_y - 32,
+            n_x + n_rand (16, 32),
+            n_y + n_rand (-64, 8)
+        );
+
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 8;
+        ctx.stroke ();
     }
 
-    ctx.putImageData (img, 0, 0);
+    ctx.restore ();
+}
+
+function n_body ()
+{
+    const n_points = 16;
+    const n_shape = [];
+
+    for (let i = 0; i < n_points; i++)
+    {
+        const n_angle = i / n_points * Math.PI * 2;
+
+        const n_radius = n_rand (128, 256);
+
+        n_shape.push
+        (
+            {
+                x : Math.cos (n_angle) * n_radius,
+                y : Math.sin (n_angle) * n_radius
+            }
+        );
+    }
+
+    ctx.save ();
+    ctx.translate (256, 256);
+
+    ctx.shadowColor = "#000000";
+    ctx.shadowBlur = 16;
+
+    ctx.beginPath ();
+
+    for (let i = 0; i < n_points; i++)
+    {
+        const a = n_shape [i];
+        const b = n_shape [ (i + 1) % n_points];
+
+        ctx.quadraticCurveTo
+        (
+            a.x, a.y,
+            (a.x + b.x) / 2,
+            (a.y + b.y) / 2
+        );
+    }
+
+    ctx.closePath ();
+
+    const n_grad = ctx.createRadialGradient
+    (
+        -32, -64, 8,
+        0, 0, 128
+    );
+
+    n_grad.addColorStop (0, "#ffffff");
+    n_grad.addColorStop (0.25, "#000000");
+    n_grad.addColorStop (0.75, "#ffffff");
+    n_grad.addColorStop (1, "#00ffff");
+
+    ctx.fillStyle = n_grad;
+    ctx.fill ();
+
+    ctx.shadowBlur = 0;
+
+    for (let i = 0; i < 32; i++)
+    {
+        ctx.beginPath ();
+
+        const n_x = n_rand (-128, 64);
+        const n_y = n_rand (-64, 128);
+
+        ctx.ellipse
+        (
+            n_x, n_y,
+            n_rand (4, 32),
+            n_rand (8, 8),
+            n_rand (0, Math.PI),
+            0,
+            Math.PI * 2
+        );
+
+        ctx.strokeStyle = "rgba (256,128,256,0.25)";
+        ctx.lineWidth = 1;
+        ctx.stroke ();
+    }
+
+    const n_eye_count = Math.floor (n_rand (16, 8) );
+
+    for (let i = 0; i < n_eye_count; i++)
+    {
+        const n_x = n_rand (-64, 128);
+        const n_y = n_rand (-32, 8);
+        const n_size = n_rand (8, 16);
+
+        ctx.beginPath ();
+
+        ctx.ellipse
+        (
+            n_x, n_y,
+            n_size * 2,
+            n_size,
+            n_rand (-0.5, 0.5),
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle = "#000000";
+        ctx.fill ();
+
+        ctx.beginPath ();
+
+        ctx.arc
+        (
+            n_x, n_y,
+            n_size * 0.5,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle = "#ffffff";
+        ctx.fill ();
+
+        ctx.beginPath ();
+
+        ctx.arc
+        (
+            n_x + n_rand (-8, 8),
+            n_y,
+            n_size * 0.25,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle = "#000000";
+        ctx.fill ();
+
+        ctx.beginPath ();
+
+        ctx.arc
+        (
+            n_x - n_size * 0.5,
+            n_y - n_size * 0.25,
+            n_size * 0.125,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle = "#00ffff";
+        ctx.fill ();
+    }
+
+    ctx.restore ();
+}
+
+function n_fragments ()
+{
+    for (let i = 0; i < 32; i++)
+    {
+        const n_x = n_rand (0, n_w);
+        const n_y = n_rand (0, n_h);
+        const n_size = n_rand (4, 16);
+
+        ctx.save ();
+
+        ctx.translate (n_x, n_y);
+        ctx.rotate (n_rand (0, Math.PI) );
+
+        ctx.beginPath ();
+
+        ctx.moveTo (0, -n_size);
+        ctx.lineTo (n_size, n_size);
+        ctx.lineTo (-n_size, n_size);
+        ctx.closePath ();
+
+        ctx.fillStyle = "#ffffff";
+        ctx.globalAlpha = n_rand (0.25, 0.75);
+        ctx.fill ();
+
+        ctx.restore ();
+    }
+}
+
+function n_generate ()
+{
+    ctx.clearRect (0, 0, n_w, n_h);
+
+    n_background ();
+
+    for (let i = 0; i < 8; i++)
+    {
+        n_tentacle
+        (
+            256 + n_rand (-128, 64),
+            256 + n_rand (-64, 128),
+            n_rand (0, Math.PI * 2),
+            n_rand (32, 256)
+        );
+    }
+
+    n_body ();
+
+    n_fragments ();
+}
+
+function n_save ()
+{
+    const n_link = document.createElement ("a");
+
+    n_link.download = "LaajiiY0LUN0.png";
+    n_link.href = canvas.toDataURL ("image/png");
+
+    n_link.click ();
 }
 
 n_generate ();
