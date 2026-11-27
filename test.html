@@ -1,0 +1,116 @@
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <meta charset = "UTF-8">
+
+    <title> LaajiiY0LUN0___test </title>
+
+</head>
+
+<body>
+
+<style>
+
+.n_LY
+{
+    background : #00ff00;
+    padding : 0.390625%;
+    text-decoration : none;
+    color : #000000;
+    font-size : 200%;
+    font-family : monospace;
+}
+
+.n_LaY0
+{
+    background : #ffffff;
+    padding : 0.390625%;
+    text-decoration : none;
+    color : #0000ff;
+    font-size : 200%;
+    font-family : monospace;
+}
+
+body
+{
+    background : #000000;
+    text-align : center;
+}
+
+#n_noise
+{
+    position : fixed;
+    top : 0;
+    left : 0;
+    width : 100%;
+    height : 100%;
+    z-index : -1;
+}
+
+</style>
+
+<canvas id = "n_noise"> </canvas>
+
+<a> ___ </a>
+
+<p> </p>
+
+<a> ___ </a>
+
+<p> </p>
+
+<a> ___ </a>
+
+<script>
+
+const canvas = document.getElementById("n_noise");
+const ctx = canvas.getContext("2d");
+
+function n_generate()
+{
+    const w = 400;
+    const h = 400;
+
+    canvas.width = w;
+    canvas.height = h;
+
+    const img = ctx.createImageData(w, h);
+
+    const n_seed = Math.random() * 1000;
+
+    for (let y = 0; y < h; y++)
+    {
+        for (let x = 0; x < w; x++)
+        {
+            const i = (y * w + x) * 4;
+
+            const n_wave =
+                Math.sin(x * 0.025 + n_seed) *
+                Math.cos(y * 0.025 + n_seed);
+
+            const n_noise = Math.random() * 100;
+
+            const n_value =
+                128 + n_wave * 60 + n_noise - 50;
+
+            img.data[i] = n_value * 1.2;
+            img.data[i + 1] = n_value * 0.7;
+            img.data[i + 2] = n_value * 1.5;
+            img.data[i + 3] = 255;
+        }
+    }
+
+    ctx.putImageData(img, 0, 0);
+}
+
+n_generate();
+
+</script>
+
+</body>
+
+</html>
